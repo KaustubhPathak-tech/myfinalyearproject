@@ -15,6 +15,11 @@ function App() {
   const [data, setData] = useState([]);
   const [data1, setData1] = useState([]);
   const [alert, setAlert] = useState(false);
+  const [emergency, setEmergency] = useState(0);
+  const tempemergency = localStorage.getItem("tempemergency");
+  // if (tempemergency) {
+  //   setEmergency(tempemergency);
+  // }
 
   useEffect(() => {
     setInterval(() => {
@@ -24,6 +29,7 @@ function App() {
 
   useEffect(() => {
     checkThresholds(data);
+    predictEmergency(data);
   }, [data]);
 
   useEffect(() => {
@@ -35,8 +41,7 @@ function App() {
       const lastItem = data[data.length - 1];
       if (lastItem.temperature > 40) {
         triggerAlert();
-      }
-      else{
+      } else {
         setAlert(false);
       }
     }
@@ -47,10 +52,27 @@ function App() {
       const lastItem = data1[data1.length - 1];
       if (lastItem.humidity > 80) {
         triggerAlert();
-      }
-      else{
+      } else {
         setAlert(false);
       }
+    }
+  };
+
+  //function to predict emergency
+  const predictEmergency = (data) => {
+    if (data.length > 0) {
+      const temp1 = data[data.length - 1].temperature;
+      const temp2 = data[data.length - 2].temperature;
+      const hum1 = data[data.length - 1].humidity;
+      const hum2 = data[data.length - 2].humidity;
+      if (temp1 - temp2 > 0 && hum1 - hum2 < 0) {
+        setEmergency(emergency + (temp1 - temp2) + (hum2 - hum1));
+      } else if (temp1 - temp2 < 0 && hum1 - hum2 > 0) {
+        setEmergency(emergency - (temp2 - temp1) - (hum1 - hum2));
+      } else {
+        setEmergency(emergency);
+      }
+      // localStorage.setItem("tempemergency", emergency);
     }
   };
 
@@ -77,7 +99,7 @@ function App() {
     <div className="App">
       <div>
         <h2 className="font-bold text-xl text-blue-700 pt-5">
-          Data Visualization
+          Live Monitoring of Temperature and Humidity
         </h2>
         <div className="p-10">
           <div className="temperature w-fit">
@@ -113,7 +135,6 @@ function App() {
                 dataKey="temperature"
                 stroke="#FF8E00"
                 fill="#FFF5E7"
-                // name="Temperature"
               />
             </AreaChart>
           </div>
@@ -141,7 +162,7 @@ function App() {
                 axisLine={false}
                 tickSize={0}
                 padding={{ top: 20, bottom: 20 }}
-                name="Humidity"
+                name="humidity"
               />
               <Tooltip />
               <Legend />
@@ -156,20 +177,29 @@ function App() {
           </div>
         </div>
       </div>
-      <div className="alertbox border-2 p-4">
+      <div className="alertbox p-4">
+        <h2 className="font-bold text-xl text-blue-700 mb-4">Alert Status</h2>
         <div className="leds ">
           {alert ? (
             <>
               {" "}
               <span>High temperature or Humidity Detected</span> &nbsp; &nbsp;
-              <span className="bg-red-500 w-2 h-2 p-2 rounded-full"></span>
+              <span className="bg-red-500 pl-5 pt-1 rounded-md"></span>
             </>
           ) : (
             <>
               <span>Normal</span> &nbsp; &nbsp;{" "}
-              <span className="bg-green-500 w-2 h-2 p-2 rounded-full"></span>
+              <span className="bg-green-500 pl-5 pt-1 rounded-md"></span>
             </>
           )}
+        </div>
+      </div>
+      <div className="emergency-prediction">
+        <h2 className="font-bold text-xl text-blue-700 mb-4">
+          Emergency Prediction
+        </h2>
+        <div className="emergency">
+          <span>Chances of Accident (in %) : {emergency}</span>
         </div>
       </div>
     </div>

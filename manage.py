@@ -15,8 +15,6 @@ def run_sensor_script():
 
 
 
-
-
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'projectapi.settings')
