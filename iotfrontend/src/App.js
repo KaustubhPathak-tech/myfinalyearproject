@@ -16,7 +16,7 @@ function App() {
   const [data1, setData1] = useState([]);
   const [alert, setAlert] = useState(false);
   const [emergency, setEmergency] = useState(0);
-  const tempemergency = localStorage.getItem("tempemergency");
+  // const tempemergency = localStorage.getItem("tempemergency");
   // if (tempemergency) {
   //   setEmergency(tempemergency);
   // }
@@ -29,8 +29,8 @@ function App() {
 
   useEffect(() => {
     checkThresholds(data);
-    predictEmergency(data);
-  }, [data]);
+    predictEmergency(data, data1);
+  }, [data, data1]);
 
   useEffect(() => {
     checkThresholds1(data1);
@@ -59,17 +59,25 @@ function App() {
   };
 
   //function to predict emergency
-  const predictEmergency = (data) => {
+  const predictEmergency = (data, data1) => {
     if (data.length > 0) {
       const temp1 = data[data.length - 1].temperature;
       const temp2 = data[data.length - 2].temperature;
-      const hum1 = data[data.length - 1].humidity;
-      const hum2 = data[data.length - 2].humidity;
-      if (temp1 - temp2 > 0 && hum1 - hum2 < 0) {
-        setEmergency(emergency + (temp1 - temp2) + (hum2 - hum1));
-      } else if (temp1 - temp2 < 0 && hum1 - hum2 > 0) {
-        setEmergency(emergency - (temp2 - temp1) - (hum1 - hum2));
+      const hum1 = data1[data1.length - 1].humidity;
+      const hum2 = data1[data1.length - 2].humidity;
+      console.log(temp1, temp2, hum1, hum2);
+      if (temp1 - temp2 > 0) {
+        setEmergency(0);
+        setTimeout(() => {
+          setEmergency(emergency + ((temp1 - temp2)));
+        }, 3000);
+      } else if (temp1 - temp2 < 0) {
+        setEmergency(0);
+        setTimeout(() => {
+          setEmergency(emergency - ((temp2 - temp1)));
+        }, 3000);
       } else {
+        setEmergency(0);
         setEmergency(emergency);
       }
       // localStorage.setItem("tempemergency", emergency);
@@ -93,8 +101,6 @@ function App() {
       console.error("Error fetching data:", error);
     }
   };
-
-  console.log(alert);
   return (
     <div className="App">
       <div>
@@ -194,7 +200,7 @@ function App() {
           )}
         </div>
       </div>
-      <div className="emergency-prediction">
+      <div className="emergency-prediction mb-8">
         <h2 className="font-bold text-xl text-blue-700 mb-4">
           Emergency Prediction
         </h2>
