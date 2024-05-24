@@ -21,7 +21,7 @@ class Command(BaseCommand):
                       humidity REAL)''')
 
         # Telnet parameters
-        host = '192.168.137.211'
+        host = '192.168.137.226'
         port = 8080 
 
         # Connect to Telnet server
